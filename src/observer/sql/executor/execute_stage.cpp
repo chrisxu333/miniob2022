@@ -444,7 +444,11 @@ RC ExecuteStage::do_select(SQLStageEvent *sql_event)
   } else {
     rc = project_oper.close();
   }
-  session_event->set_response(ss.str());
+  if(rc == RC::SUCCESS){
+    session_event->set_response(ss.str());
+  }else{
+    session_event->set_response("FAILURE\n");
+  }
   return rc;
 }
 
@@ -500,7 +504,8 @@ RC ExecuteStage::do_show_tables(SQLStageEvent *sql_event)
   std::vector<std::string> all_tables;
   db->all_tables(all_tables);
   if (all_tables.empty()) {
-    session_event->set_response("No table\n");
+    session_event->set_response("FAILURE\n");
+    return RC::SCHEMA_TABLE_NOT_EXIST;
   } else {
     std::stringstream ss;
     for (const auto &table : all_tables) {
@@ -521,7 +526,9 @@ RC ExecuteStage::do_desc_table(SQLStageEvent *sql_event)
   if (table != nullptr) {
     table->table_meta().desc(ss);
   } else {
-    ss << "No such table: " << table_name << std::endl;
+    // ss << "No such table: " << table_name << std::endl;
+    sql_event->session_event()->set_response("FAILURE\n");
+    return RC::SCHEMA_TABLE_NOT_EXIST;
   }
   sql_event->session_event()->set_response(ss.str().c_str());
   return RC::SUCCESS;
@@ -538,6 +545,7 @@ RC ExecuteStage::do_insert(SQLStageEvent *sql_event)
 
   if (stmt == nullptr) {
     LOG_WARN("cannot find statement");
+    session_event->set_response("FAILURE\n");
     return RC::GENERIC_ERROR;
   }
 
@@ -582,6 +590,7 @@ RC ExecuteStage::do_delete(SQLStageEvent *sql_event)
 
   if (stmt == nullptr) {
     LOG_WARN("cannot find statement");
+    session_event->set_response("FAILURE\n");
     return RC::GENERIC_ERROR;
   }
 
