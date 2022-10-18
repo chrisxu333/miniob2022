@@ -5,9 +5,10 @@ python3 miniob_test.py \
         --test-result-dir=result \
         --test-result-tmp-dir=./result_tmp \
         --use-unix-socket \
-        --git-repo=git@gitee.com:chrisxu_2507/ob2022.git \
+        --git-repo=https://github.com/chrisxu333/miniob2022.git \
         --git-branch=miniob_test \
         --code-type=git \
         --target-dir=./miniob \
         --log=stdout \
         --compile-make-args=-j4
+rm -rf /root/miniob2022/test/case/miniob
